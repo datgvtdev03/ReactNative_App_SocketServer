@@ -25,6 +25,7 @@ export default function DetailCart(props) {
     }
 
     console.log("ssdsds: ", newObj);
+
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -36,6 +37,7 @@ export default function DetailCart(props) {
     )
       .then((response) => {
         response.json();
+
         if (response.status == 201 || response.status == 200) {
           console.log("Them thanh cong");
         }
@@ -65,13 +67,19 @@ export default function DetailCart(props) {
 
       <View style={[styles.viewDetail, {alignItems: 'center', justifyContent: 'center'}]}>
         <View style={{borderWidth: 1, borderRadius: 5, width: '90%', height: '90%', borderColor: '#C4C4C4', padding: 10}}>
+          <Text style ={{position: "absolute",
+              top: -10,
+              left: 20,
+              color: "#007EBB",
+              backgroundColor: "#F7F7F7",
+              paddingHorizontal: 5,}}>Thông tin sản phẩm:</Text>
           <Text>{inforItem.dependencies}</Text>
         </View>
       </View>
 
       <View style={styles.viewButton}>
         <View style={{flex: 1}}>
-          <TouchableOpacity style={styles.buttonAdd} onPress={() => onAdd()}>
+          <TouchableOpacity style={styles.buttonAdd} onPress={() =>{ onAdd(), navigation.navigate("Cart")}}>
           <Text style={{color: 'white'}}>Thêm giỏ hàng</Text>
           </TouchableOpacity>
         </View>

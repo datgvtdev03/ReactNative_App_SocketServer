@@ -9,11 +9,20 @@ import {
   FlatList,
 } from "react-native";
 import { useState, useEffect } from "react";
+import CartStore from "./CartStore";
+
 
 export default function CartScreen({ navigation }) {
+
   const [listData, setListData] = useState();
   const [total, setTotal] = useState(0);
   const [totalPrice, setTalPrice] = useState(0);
+
+  const [count, setCount] = useState(0);
+
+  const getCount = CartStore(state => state.addCount);
+  const getCart = CartStore(state => state.listCart);
+
 
   //khi chuyen vao man hinh thi bat dc su kien khi focus vao mh
     React.useEffect(() => {
@@ -22,6 +31,7 @@ export default function CartScreen({ navigation }) {
         // Call any action
         console.log("thay doi man hinh");
         getListDataFromApi();
+        console.log("nhan du lieu: ", getCart);
       });
   
       // Return the function to unsubscribe from the event so it gets removed on unmount
@@ -124,6 +134,9 @@ export default function CartScreen({ navigation }) {
   };
 
   const getListDataFromApi = async () => {
+
+    // async await la cho thang chờ hiên thị danh sách r mới log ra
+    //k co await thì cái nào hiển thị trc thì nó log ra dc
     await fetch("https://60c7a3edafc88600179f5766.mockapi.io/w")
       .then((response) => response.json())
       .then((json) => {
@@ -140,11 +153,13 @@ export default function CartScreen({ navigation }) {
       .catch((err) => {
         console.error(err);
       });
+
+      console.log("Da goi danh sach san pham");
   };
 
   useEffect(() => {
     getListDataFromApi();
-    console.log(getListDataFromApi);
+    console.log("getcount: ", getCount);
   }, []);
 
   return (
@@ -329,8 +344,13 @@ export default function CartScreen({ navigation }) {
               backgroundColor: "#00ABFD",
             }}
             onPress={() => {
-              Alert.alert("Đã làm đâu mà thanh toán được? Lmao");
+              setCount(count + 1)
+              console.log("count: ", count);
+              if(count == 10) {
+                getCount(count)
+              }
             }}
+            
           >
             <Text>Thanh toán</Text>
           </TouchableOpacity>

@@ -9,51 +9,103 @@ import {
   Alert,
   FlatList,
   Text,
-  ActivityIndicator
+  ActivityIndicator, SearchBar
 } from "react-native";
 import { useState, useRef, useEffect } from "react";
 import 'intl';
 import 'intl/locale-data/jsonp/en'; // or any other locale you need
 
+
 export default function SearchScreen({ navigation }) {
   const [filterData, setFilterData] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [listData, setListData] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
 
+
+  const arr = [listData];
+  
 
   const textInputRef = React.useRef();
-  useEffect(
-    () => {
-      if (textInputRef.current) {
-        const unsubcride = navigation.addListener("focus", () => {
-          textInputRef.current.focus();
-        });
-        return unsubcride;
-      }
-    },
-    navigation,
-    textInputRef.current
-  );
+  // useEffect(
+  //   () => {
+  //     getListDataFromApi();
+  //     if (textInputRef.current) {
+  //       const unsubcride = navigation.addListener("focus", () => {
+  //         textInputRef.current.focus();
+  //       });
+  //       return unsubcride;
+  //     }
+  //   },
+  //   navigation,
+  //   textInputRef.current
+  // );
+
+
+
+  const searchFillterArr = (text) => {
+    if (text) {
+      const newData = listData.filter(function (item) {
+        const itemData = item.name
+          ? item.name.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredDataSource(newData);
+      setSearch(text);
+      // console.log("search: ", search);
+      // console.log("setFilteredDataSource: ", filteredDataSource)
+    } else {
+      setFilteredDataSource([]);
+      setSearch(text);
+    }
+  }
 
   
 
-  const getListDataFromApi = async (text) => {
+  // const getListDataFromApi = async (text) => {
+  //   setIsLoading(true);
+  //   await fetch(
+  //     "https://api.themoviedb.org/3/search/keyword?api_key=e9e9d8da18ae29fc430845952232787c&page=1&query=" + text)
+  //     .then((response) => response.json())
+  //     .then((json) => {
+  //       setIsLoading(false);
+  //       setFilterData(json.results);
+  //       console.log(json.results);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // };
+
+  const getListDataFromApi = async () => {
     setIsLoading(true);
     await fetch(
-      "https://api.themoviedb.org/3/search/keyword?api_key=e9e9d8da18ae29fc430845952232787c&page=1&query=" + text)
+      "https://60c7a3edafc88600179f5766.mockapi.io/listPhone")
       .then((response) => response.json())
       .then((json) => {
         setIsLoading(false);
-        setFilterData(json.results);
-        console.log(json.results);
+        setListData(json);
+        // console.log("Mang da nhan du lieu: ",arr);
+        console.log(listData);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
+  useEffect(() => {
+    getListDataFromApi();
+  }, []);
+
+  
+
   const config = { style: 'currency', currency: 'VND', maximumFractionDigits: 9}
   // const formated = new Intl.NumberFormat('vi-VN', config).format(id);
-
+  
   return (
     <View style={styles.container}>
       <View style={[styles.viewHeader, { flexDirection: "row" }]}>
@@ -87,13 +139,21 @@ export default function SearchScreen({ navigation }) {
               source={require("../../../assets/search.png")}
             />
 
-            <TextInput
+            {/* <TextInput
               ref={textInputRef}
               style={{ width: "100%", height: "100%", marginLeft: 11 }}
               placeholder="Tìm kiếm sản phẩm"
               placeholderTextColor="#808080"
               onChangeText={(text) => getListDataFromApi(text)}
+            /> */}
+            <TextInput
+              style={{ width: "100%", height: "100%", marginLeft: 11 }}
+              placeholder="Tìm kiếm sản phẩm"
+              placeholderTextColor="#808080"
+              onChangeText={(text) => searchFillterArr(text)}
+              value={search}
             />
+          
           </View>
         </View>
       </View>
@@ -104,14 +164,31 @@ export default function SearchScreen({ navigation }) {
       {isLoading ?  <ActivityIndicator size="large" color="#00ff00" /> : null}
         <FlatList
           style={{ alignSelf: "center", width: "90%" }}
-          data={filterData}
-          renderItem={({ item }) => (
+          data={filteredDataSource}
+          renderItem={({ item }) => {
+
+          const partialText = item.name.split(search)
+
+          return (
+            
             <TouchableOpacity
               style={styles.itemView}>
-              <Text>{item.name}</Text>
-              <Text style={{ color: "red" }}>{new Intl.NumberFormat('vi-VN', config).format(item.id)}</Text>
+              <Text>
+                {partialText.map((part, index) => {
+                  console.log(partialText.length, 'length');
+                  console.log(part, "part");
+                  return (
+                    <Text key={index}>
+                      {part}
+                      {index !== partialText.length - 1 && <Text style={{color: 'red'}}>{search}</Text>}
+                    </Text>
+                  )
+                })}
+                </Text>
+              <Text style={{ color: "red" }}>{new Intl.NumberFormat('vi-VN', config).format(item.price)}</Text>
+              <Text>{item.quantityBuy}</Text>
             </TouchableOpacity>
-          )}
+          )}}
           keyExtractor={(item) => item.id}
           
         />

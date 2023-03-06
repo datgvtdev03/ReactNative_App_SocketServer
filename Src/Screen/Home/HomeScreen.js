@@ -7,32 +7,37 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import { FlatList } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import HomeControlller from "./HomeController";
+import CartStore from "../Cart/CartStore";
+import ChatScreen from "../ChatScreen/ChatScreen";
 
 const config = {
   style: "currency",
   currency: "VND",
   maximumFractionDigits: 9,
 };
-const windowWidth = Dimensions.get('window').width;
-  console.log("dai ", windowWidth);
-  const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get("window").width;
+// console.log("dai ", windowWidth);
+const windowHeight = Dimensions.get("window").height;
 export default function HomeScreen({ navigation }) {
-  
   const [isShowImage, setIsShowImage] = useState(false);
 
   const [listData, setListData] = useState();
+
+  const getCount = CartStore((state) => state.count);
+  const getCart = CartStore((state) => state.setListCart);
 
   const getListDataFromApi = async () => {
     await fetch("https://60c7a3edafc88600179f5766.mockapi.io/listPhone")
       .then((response) => response.json())
       .then((json) => {
         setListData(json);
-        console.log(listData);
+        getCart(json);
+        // console.log(listData);
       })
       .catch((err) => {
         console.error(err);
@@ -41,7 +46,7 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     getListDataFromApi();
-    console.log(getListDataFromApi);
+    // console.log("abc", getCount);
   }, []);
 
   const dataDanhMuc = [
@@ -124,7 +129,6 @@ export default function HomeScreen({ navigation }) {
                     navigation.navigate("Search");
                   }}
                 />
-
               </View>
             </View>
 
@@ -167,17 +171,28 @@ export default function HomeScreen({ navigation }) {
                 data={listData}
                 renderItem={({ item }) => (
                   // <View style={styles.viewItemData} >
-                  <TouchableOpacity style={styles.viewItemData}
-                  onPress={() => navigation.navigate('DetailCart', {item: item})}>
-                  
+                  <TouchableOpacity
+                    style={styles.viewItemData}
+                    onPress={() =>
+                      navigation.navigate(
+                        "DetailCart",
+                        { item: item },
+                        getCart(item)
+                      )
+                    }
+                  >
                     <Image
-                      source={{ uri: item.imagePhone}}
+                      source={{ uri: item.imagePhone }}
                       style={{ width: 130, height: 170, marginBottom: 8 }}
                     />
                     <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
-                    <Text style={{ color: 'red' }}>{new Intl.NumberFormat("vi-VN", config).format(item.price)}</Text>
+                    <Text style={{ color: "red" }}>
+                      {new Intl.NumberFormat("vi-VN", config).format(
+                        item.price
+                      )}
+                    </Text>
                   </TouchableOpacity>
-                    
+
                   // </View>
                 )}
                 keyExtractor={(item) => item.id}
@@ -185,6 +200,16 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
         </ScrollView>
+
+        <TouchableOpacity
+          style={{ position: "absolute", bottom: 10, right: 20 }}
+          onPress={() => navigation.navigate("ChatScreen")}
+        >
+          <Image
+            style={{ width: 50, height: 50 }}
+            source={require("../../../assets/chat.png")}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -259,7 +284,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
 
   viewItemData: {
