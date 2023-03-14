@@ -3,12 +3,8 @@ import React, { useEffect, useState } from "react";
 import { FlatList, ScrollView, View, Text, Image, Touchable, TouchableOpacity, StyleSheet } from "react-native";
 import moment from "moment";
 
-
-
 export default function ChatScreen(props) {
   const navigation = props.navigation;
-
-  
 
   const [listFriend, setListFriend] = useState()
  
@@ -28,8 +24,6 @@ export default function ChatScreen(props) {
     getDataFromAPI();
   }, [])
 
-  
-
   return (
     <View>
       <ScrollView>
@@ -37,10 +31,8 @@ export default function ChatScreen(props) {
           data={listFriend}
           renderItem={({item}) => (
 
-            
-
             <TouchableOpacity
-              onPress={() => navigation.navigate('ChatWith', { item: item })}>
+              onPress={() => navigation.navigate('ChatWithFr', { item: item })}>
 
               <View style={{flexDirection: 'row', height: 70}}>
                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
